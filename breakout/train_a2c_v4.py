@@ -5,7 +5,7 @@ import common
 from actor_critic_02 import ActorCritic
 
 LEARNING_RATE = 1e-4
-TEST_EVERY_BATCH = 1000
+TEST_EVERY_BATCH = 300
 
 if __name__ == "__main__":
 	device = torch.device("cuda")
@@ -20,15 +20,18 @@ if __name__ == "__main__":
 	best_test_reward = None
 	
 	for mb_obs, mb_rewards, mb_actions, mb_values, _, done_rewards, done_steps in common.iterate_batches(envs, net, device=device):
-		common.train_a2c(net, mb_obs, mb_rewards, device=device)
+		common.train_a2c(net, mb_obs, mb_rewards, mb_actions, mb_values,
+                             optimizer, step_idx, device=device)
+		step_idx += 1
+
 		if step_idx % TEST_EVERY_BATCH == 0:
 			test_reward, test_steps = common.test_model(test_env, net, device=device)
-			if best_test_rewards is None or best_test_reward < test_reward:
+			if best_test_reward is None or best_test_reward < test_reward:
 				if best_test_reward is not None:
 					fname = "breakout_a2c"
 					torch.save(net.state_dict(), fname)
 				best_test_reward = test_reward
 			print("%d: test reward=%.2f, steps=%.2f, best_reward=%.2f" % (step_idx, test_reward, test_steps, best_test_reward))
-		print("step number, ", step_idx)
-		if step_idx > 30000:
+		
+		if step_idx > 100000:
 			break
