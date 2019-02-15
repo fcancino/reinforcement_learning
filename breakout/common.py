@@ -79,7 +79,7 @@ def discount_with_dones(rewards, dones, gamma):
         discounted.append(r)
     return discounted[::-1]
 
-def iterate_batches(envs, net, act=False, device="cpu"):
+def iterate_batches(envs, net, device="cuda", act=False):
     n_actions = envs[0].action_space.n
     act_selector = ProbabilityActionSelector()
     obs = [e.reset() for e in envs]
@@ -100,7 +100,7 @@ def iterate_batches(envs, net, act=False, device="cpu"):
             obs_v = default_states_preprocessor(obs).to(device)
             mb_obs[:, n] = obs_v.data.cpu().numpy()
             if act:
-                logits_v, values_v, _ = net(obs_v)
+                logits_v, values_v = net(obs_v)
             else:
                 logits_v, values_v = net(obs_v)
 
@@ -125,7 +125,7 @@ def iterate_batches(envs, net, act=False, device="cpu"):
                 batch_dones[e_idx].append(done)
         # obtain values for the last observation
         obs_v = default_states_preprocessor(obs).to(device)
-        _, values_v, _ = net(obs_v)
+        _, values_v = net(obs_v)
         values_last = values_v.squeeze().data.cpu().numpy()
 
         for e_idx, (rewards, dones, value) in enumerate(zip(mb_rewards, batch_dones, values_last)):
@@ -152,7 +152,7 @@ def train_a2c(net, mb_obs, mb_rewards, mb_actions, mb_values, optimizer,  step_i
     obs_v = torch.FloatTensor(mb_obs).to(device)
     rewards_v = torch.FloatTensor(mb_rewards).to(device)
     actions_t = torch.LongTensor(mb_actions).to(device)
-    logits_v, values_v, ponder_dict = net(obs_v)
+    logits_v, values_v= net(obs_v)
     log_prob_v = F.log_softmax(logits_v, dim=1)
     log_prob_actions_v = adv_v * log_prob_v[range(len(mb_actions)), actions_t]
 
@@ -163,10 +163,10 @@ def train_a2c(net, mb_obs, mb_rewards, mb_actions, mb_values, optimizer,  step_i
     entropy_loss_v = (prob_v * log_prob_v).sum(dim=1).mean()
     loss_v = ENTROPY_BETA * entropy_loss_v + VALUE_LOSS_COEF * loss_value_v + loss_policy_v
     
-    if ponder_dict:
-        loss_v += (
-            ACT_PONDER_PENALTY * ponder_dict["ponder_cost"].mean()
-        )    
+    # if ponder_dict:
+    #     loss_v += (
+    #         ACT_PONDER_PENALTY * ponder_dict["ponder_cost"].mean()
+    #     )    
     loss_v.backward()
     nn_utils.clip_grad_norm_(net.parameters(), CLIP_GRAD)
     optimizer.step()

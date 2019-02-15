@@ -117,11 +117,12 @@ class I2A(nn.Module):
         batch_size = batch.size()[0]
         batch_rest = batch.size()[1:]
         if batch_size == 1:
-            obs_batch_v = batch.expand(batch_size * self.n_actions, *batch_rest)
+            obs_batch_v = batch.expand(batch_size * self.n_actions, *batch_rest).to(batch.device)
         else:
             obs_batch_v = batch.unsqueeze(1)
             obs_batch_v = obs_batch_v.expand(batch_size, self.n_actions, *batch_rest)
             obs_batch_v = obs_batch_v.contiguous().view(-1, *batch_rest)
+            obs_batch_v = obs_batch_v.to(batch.device)
         actions = np.tile(np.arange(0, self.n_actions, dtype=np.int64), batch_size)
         step_obs, step_rewards = [], []
 

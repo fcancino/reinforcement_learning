@@ -23,7 +23,7 @@ USE_CUDA = torch.cuda.is_available()
 ROLLOUTS_STEPS = 3
 LEARNING_RATE = 1e-4
 POLICY_LR = 1e-4
-TEST_EVERY_BATCH = 1000
+TEST_EVERY_BATCH = 2
 NUM_ENVS = 16
 NUM_OF_EPISODES = 100000
 REWARD_STEPS = 5
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     best_test_reward = None
 
     print(torch.cuda.device_count())
-    
+
     for mb_obs, mb_rewards, mb_actions, mb_values, mb_probs, done_rewards, done_steps in \
             common.iterate_batches(envs, net_i2a, device):
         if len(done_rewards) > 0:
