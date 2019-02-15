@@ -12,9 +12,9 @@ import time
 import csv
 
 from actor_critic_02 import ActorCritic
-from multiprocessing_env import SubprocVecEnv
-from minipacman import MiniPacman
-from environment_model import *
+# from multiprocessing_env import SubprocVecEnv
+# from minipacman import MiniPacman
+from environment_model_02 import *
 from i2a_02 import *
 import common
 
@@ -48,7 +48,7 @@ def set_seed(seed, envs=None, cuda=False):
 
 if __name__ == "__main__":
     device = torch.device("cuda" if USE_CUDA else "cpu")
-
+    print(USE_CUDA)
     envs = [common.make_env() for _ in range(NUM_ENVS)]
     test_env = common.make_env(test=True)
 
@@ -76,6 +76,9 @@ if __name__ == "__main__":
     ts_start = time.time()
     best_reward = None
     best_test_reward = None
+
+    print(torch.cuda.device_count())
+    
     for mb_obs, mb_rewards, mb_actions, mb_values, mb_probs, done_rewards, done_steps in \
             common.iterate_batches(envs, net_i2a, device):
         if len(done_rewards) > 0:
