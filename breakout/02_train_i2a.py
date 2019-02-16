@@ -23,9 +23,9 @@ USE_CUDA = torch.cuda.is_available()
 ROLLOUTS_STEPS = 3
 LEARNING_RATE = 1e-4
 POLICY_LR = 1e-4
-TEST_EVERY_BATCH = 2
+TEST_EVERY_BATCH = 500
 NUM_ENVS = 16
-NUM_OF_EPISODES = 100000
+NUM_OF_EPISODES = 1000000
 REWARD_STEPS = 5
 GAMMA = 0.99
 CLIP_GRAD = 0.5
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             test_reward, test_steps = common.test_model(test_env, net_i2a, device=device)
             
             append_to_file = [step_idx, test_reward]
-            with open('i2a_performance.csv', 'a') as f:
+            with open('breakout_i2a_performance.csv', 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(append_to_file)
 
