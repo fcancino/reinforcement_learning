@@ -17,7 +17,7 @@ from actor_critic_02 import ActorCritic
 from environment_model_02 import *
 from i2a_02 import *
 import common
-
+import os
 
 USE_CUDA = torch.cuda.is_available()
 ROLLOUTS_STEPS = 3
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     net_policy = ActorCritic(obs_shape, act_n).to(device)
 
     net_em = EnvironmentModel(obs_shape, act_n)
-    net_em.load_state_dict(torch.load("breakout.env"))
+    net_em.load_state_dict(torch.load("pacman.env"))
     net_em = net_em.to(device)
 
     net_i2a = I2A(obs_shape, act_n, net_em, net_policy, ROLLOUTS_STEPS).to(device)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         step_idx += 1
 
         if step_idx % SAVE_EVERY_BATCH == 0:
-            fname = "breakout.i2a"
+            fname = "pacman.i2a"
             torch.save(net_em.state_dict(), fname)
             torch.save(net_policy.state_dict(), fname + ".policy")
 
@@ -111,25 +111,25 @@ if __name__ == "__main__":
             test_reward, test_steps = common.test_model(test_env, net_i2a, device=device)
             
             append_to_file = [step_idx, test_reward]
-            with open('breakout_i2a_performance.csv', 'a') as f:
+            with open('pacman_i2a_performance.csv', 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(append_to_file)
 
             if best_test_reward is None or best_test_reward < test_reward:
                 if best_test_reward is not None:
-                    fname = "breakout.i2a"
+                    fname = "pacman.i2a"
                     torch.save(net_i2a.state_dict(), fname)
                     torch.save(net_policy.state_dict(), fname + ".policy")
                     print("Save I2A NET at step", step_idx)
                 else:
-                    fname = "breakout.env.i2a"
+                    fname = "pacman.env.i2a"
                     torch.save(net_em.state_dict(), fname)
                     print("Save I2A ENV NET at step", step_idx)
                 best_test_reward = test_reward
             print("%d: test reward=%.2f, steps=%.2f, best_reward=%.2f" % (
                 step_idx, test_reward, test_steps, best_test_reward))
 
-fname = "breakout.i2a"
+fname = "pacman.i2a"
 torch.save(net_i2a.state_dict(), fname)
 torch.save(net_policy.state_dict(), fname + ".policy")
 torch.save(net_em.state_dict(), fname + ".env.dat")

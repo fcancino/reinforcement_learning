@@ -108,14 +108,12 @@ class I2A(nn.Module):
     def forward(self, x):
         fx = x.float() / 255
         enc_rollouts = self.rollouts_batch(fx)
-        print("ENC ROLLOUTS SIZE",enc_rollouts.size())
+        #print("ENC ROLLOUTS SIZE",enc_rollouts.size())
         conv_out = self.conv(fx).view(fx.size()[0], -1)
         fc_in = torch.cat((conv_out, enc_rollouts), dim=1)
-        print("FC IN SIZE", fc_in.size())
+        #print("FC IN SIZE", fc_in.size())
 
         fc_out = self.fc(fc_in)
-
-        exit()
         return self.policy(fc_out), self.value(fc_out)
 
     def rollouts_batch(self, batch):

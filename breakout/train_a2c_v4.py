@@ -28,7 +28,7 @@ if __name__ == "__main__":
 			test_reward, test_steps = common.test_model(test_env, net, device=device)
 			if best_test_reward is None or best_test_reward < test_reward:
 				if best_test_reward is not None:
-					fname = "breakout_a2c"
+					fname = "pacman_a2c.net"
 					torch.save(net.state_dict(), fname)
 				best_test_reward = test_reward
 			print("%d: test reward=%.2f, steps=%.2f, best_reward=%.2f" % (step_idx, test_reward, test_steps, best_test_reward))

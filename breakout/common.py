@@ -179,7 +179,7 @@ def make_env(test=False, clip=True):
                 'episodic_life': False}
     else:
         args = {'reward_clipping': clip}
-    return wrapper.wrap_dqn(gym.make('BreakoutNoFrameskip-v4'),
+    return wrapper.wrap_dqn(gym.make('MsPacmanNoFrameskip-v4'),
                                          stack_frames=FRAMES_COUNT,
                                          **args)
 

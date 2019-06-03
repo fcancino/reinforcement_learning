@@ -22,7 +22,7 @@ USE_CUDA = torch.cuda.is_available()
 ROLLOUTS_STEPS = 3
 LEARNING_RATE = 1e-4
 POLICY_LR = 1e-4
-TEST_EVERY_BATCH = 3
+TEST_EVERY_BATCH = 500
 NUM_ENVS = 16
 NUM_OF_EPISODES = 100000
 REWARD_STEPS = 5
@@ -109,7 +109,7 @@ if __name__ == "__main__":
             test_reward, test_steps = common.test_model(test_env, net_i2a, device=device)
             
             append_to_file = [step_idx, test_reward]
-            with open('i2a_performance.csv', 'a') as f:
+            with open('i2a_breakout_act_ponder1.csv', 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(append_to_file)
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
                 if best_test_reward is not None:
                     fname = "breakout.i2a"
                     torch.save(net_i2a.state_dict(), fname)
-                    torch.save(net_policy.state_dict(), fname + ".policy")
+                    torch.save(net_policy.state_dict(), fname + "act.policy")
                     print("Save I2A NET at step", step_idx)
                 else:
                     fname = "breakout.env.i2a"

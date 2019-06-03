@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     net = ActorCritic(envs[0].observation_space.shape, envs[0].action_space.n)
     net_em = EnvironmentModel(envs[0].observation_space.shape, envs[0].action_space.n).to(device)
-    net.load_state_dict(torch.load("breakout_a2c"))
+    net.load_state_dict(torch.load("pacman_a2c.net"))
     net = net.to(device)
     print(net_em)
     optimizer = optim.Adam(net_em.parameters(), lr=LEARNING_RATE)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         if loss < best_loss:
             print("Best loss updated: %.4e -> %.4e" % (best_loss, loss))
             best_loss = loss
-            fname = "breakout.env"
+            fname = "pacman_env.net"
             print("Saving Network")
             print("STEP", step_idx)
             torch.save(net_em.state_dict(), fname)

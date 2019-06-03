@@ -31,7 +31,7 @@ class ProbabilityActionSelector(ActionSelector):
 
 
 
-PONDER = 4
+PONDER = 8
 class RolloutEncoder(nn.Module):
     def __init__(self, input_shape, hidden_size=ROLLOUT_HIDDEN):
         super(RolloutEncoder, self).__init__()
@@ -64,9 +64,9 @@ class RolloutEncoder(nn.Module):
         conv_out = self.conv(obs_flat_v)
         # print("CONV_OUT SIZE", conv_out.size())
         conv_out = conv_out.view(n_time, n_batch, -1)
-        print("CONV_OUT AFTER VIEW SIZE",conv_out.size())
+        #print("CONV_OUT AFTER VIEW SIZE",conv_out.size())
         rnn_in = torch.cat((conv_out, reward_v), dim=2)
-        print("RNN_INPUT_SIZE", rnn_in.shape)
+        #print("RNN_INPUT_SIZE", rnn_in.shape)
         rnn_input1 = rnn_in.cpu()
         rnn_input = rnn_input1.data.numpy()
         rnn_input = np.repeat(rnn_input, PONDER, axis=1)
@@ -75,7 +75,7 @@ class RolloutEncoder(nn.Module):
         
         binary_flag[:, ::PONDER, :] = 1
         rnn_input = np.concatenate((binary_flag, rnn_input), axis=2)
-        print("RNN_INPUT_SIZE2", rnn_input.shape)        
+        #print("RNN_INPUT_SIZE2", rnn_input.shape)        
         rnn_input = torch.FloatTensor(rnn_input).cuda()
        
 
@@ -124,24 +124,24 @@ class I2A(nn.Module):
     def forward(self, x):
         fx = x.float() / 255
         enc_rollouts = self.rollouts_batch(fx)
-        print("ENC ROLLOUTS SIZE",enc_rollouts.size())
+        #print("ENC ROLLOUTS SIZE",enc_rollouts.size())
 
         conv_out = self.conv(fx).view(fx.size()[0], -1)
         fc_in = torch.cat((conv_out, enc_rollouts), dim=1)
         
-        print("FC_IN SIZE", fc_in.size())
+        #print("FC_IN SIZE", fc_in.size())
         
         # exit()
         fc_out = self.fc(fc_in)
         return self.policy(fc_out), self.value(fc_out)
 
     def rollouts_batch(self, batch):
-        print("BATCH SIZE", batch.size())
+        #print("BATCH SIZE", batch.size())
         # print(batch)
         batch_size = batch.size()[0]
         # print(batch_size)
         batch_rest = batch.size()[1:]
-        print(*batch_rest)
+        #print(*batch_rest)
         if batch_size == 1:
             obs_batch_v = batch.expand(batch_size * self.n_actions, *batch_rest).to(batch.device)
             print(obs_batch_v.size())
@@ -151,7 +151,7 @@ class I2A(nn.Module):
             obs_batch_v = obs_batch_v.contiguous().view(-1, *batch_rest)
             obs_batch_v = obs_batch_v.to(batch.device)
         actions = np.tile(np.arange(0, self.n_actions, dtype=np.int64), batch_size)
-        print("Actions", actions)
+        #print("Actions", actions)
         step_obs, step_rewards = [], []
 
         for step_idx in range(self.rollout_steps):
@@ -172,9 +172,9 @@ class I2A(nn.Module):
             probs = probs_v.data.cpu().numpy()
             actions = self.action_selector(probs)
         
-        print("Len step obs",len(step_obs))
+        #print("Len step obs",len(step_obs))
         step_obs_v = torch.stack(step_obs)
-        print("LEN STEP OBS V",step_obs_v.size())
+        #print("LEN STEP OBS V",step_obs_v.size())
         step_rewards_v = torch.stack(step_rewards)
         flat_enc_v = self.encoder(step_obs_v, step_rewards_v, batch_size, self.rollout_steps)
         # exit()

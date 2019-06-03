@@ -31,7 +31,7 @@ FRAMES_COUNT = 2
 IMG_SHAPE = (FRAMES_COUNT, 84, 84)
 EM_OUT_SHAPE = (1, ) + IMG_SHAPE[1:]
 NUM_OF_EPISODES = 1000000
-ACT_PONDER_PENALTY = .1
+ACT_PONDER_PENALTY = 1
 class ActionSelector:
     """
     Abstract class which converts scores to the actions
